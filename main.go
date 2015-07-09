@@ -1,6 +1,10 @@
 package main
 
-import gc "github.com/rthornton128/goncurses"
+import (
+	"fmt"
+
+	gc "github.com/rthornton128/goncurses"
+)
 
 func perror(err error) {
 	if err != nil {
@@ -18,7 +22,6 @@ func main() {
 	h, w := stdscr.MaxYX()
 
 	// Initialize the library
-	gc.StartColor()
 	gc.Raw(true)
 	gc.Echo(false)
 	gc.Cursor(0)
@@ -44,14 +47,12 @@ func main() {
 
 	// Create the user menu
 	userMenu, userMenuWin := newFeatureMenu(userItems, h, w/2, 0, 0)
-	defer userMenu.Free()
 	userMenu.Post()
 	defer userMenu.UnPost()
 	userMenuWin.Refresh()
 
 	// Create the article menu
 	articleMenu, articleMenuWin := newFeatureMenu(articleItems, h/2, w/2, 0, w/2)
-	defer articleMenu.Free()
 	articleMenu.Post()
 	defer articleMenu.UnPost()
 	articleMenuWin.Refresh()
@@ -126,6 +127,17 @@ func main() {
 		case gc.KEY_RIGHT:
 			currentMenu = articleMenu
 			currentMenuWin = articleMenuWin
+		case gc.KEY_ENTER, gc.KEY_RETURN, gc.Key('\r'):
+			if currentMenu == userMenu {
+				currentMenu = articleMenu
+				currentMenuWin = articleMenuWin
+				activeA = 0
+			} else {
+				gc.End()
+				content := dlContent(userArticles[userItems[active].Name()][activeA].url + "/ansi")
+				fmt.Println(content)
+				return
+			}
 		default:
 			currentMenu.Driver(gc.DriverActions[ch])
 		}

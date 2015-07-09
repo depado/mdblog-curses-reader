@@ -42,6 +42,20 @@ type articleType struct {
 	url       string
 }
 
+func dlContent(url string) (content string) {
+	res, err := http.Get(url)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+	dl, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return
+	}
+	content = string(dl)
+	return
+}
+
 func dlSingle(url string) (content articleAPIType, err error) {
 	res, err := http.Get(url)
 	if err != nil {
@@ -74,7 +88,7 @@ func fetchAllArticles() (content map[string][]articleType, err error) {
 			url:       "http://" + item.User.BlogSlug + ".markdownblog.com/" + item.TitleSlug,
 		})
 	}
-	for i := 2; i < tp; i++ {
+	for i := 2; i <= tp; i++ {
 		current, err := dlSingle(articleURL + "?page=" + strconv.Itoa(i))
 		if err != nil {
 			return nil, err
