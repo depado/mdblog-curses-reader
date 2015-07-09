@@ -42,7 +42,7 @@ type articleType struct {
 	url       string
 }
 
-func dlContent(url string) (content string) {
+func dlContent(url string) (content string, err error) {
 	res, err := http.Get(url)
 	if err != nil {
 		return
